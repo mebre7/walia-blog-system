@@ -73,17 +73,16 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
-# Auto-register Render hostname if present
-render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if render_host:
-    _register_host(render_host, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS)
-
-
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
     if origin.strip()
 ]
+
+# Auto-register Render hostname if present
+render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if render_host:
+    _register_host(render_host, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS)
 
 # Vercel sets deployment URLs automatically; custom domains are not covered by .vercel.app.
 for env_name in ('VERCEL_URL', 'VERCEL_BRANCH_URL'):
