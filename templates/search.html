@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load static %}
+{% load search_filters %}
+
+{% block title %}
+  {% if query %}Search: {{ query }} | Walia-blog{% else %}Search | Walia-blog{% endif %}
+{% endblock %}
+
+{% block content %}
+<main>
+  <section class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="soft-card rounded-5 p-4 p-lg-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+          <div class="flex-grow-1">
+            <h2 class="h3 mb-1">Search posts</h2>
+            <p class="text-muted-soft mb-3">Find stories, authors, and topics across the site.</p>
+
+            <form method="get" action="{% url 'search' %}" class="row g-2 align-items-center">
+              <div class="col-md-9">
+                <div class="input-group input-group-lg">
+                  <span class="input-group-text bg-transparent text-muted-soft border-end-0">Search</span>
+                  <input type="search" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Search stories, tags, authors, places..." aria-label="Search posts">
+                </div>
+              </div>
+              <div class="col-md-3 d-grid">
+                <button class="btn btn-brand btn-lg rounded-pill" type="submit">Search</button>
+              </div>
+            </form>
+
+            <!-- Filter Options -->
+            {% if query %}
+            <div class="mt-4">
+              <div class="section-kicker mb-2">Filter results by</div>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="?q={{ query|urlencode }}&filter=all" class="btn {% if filter_type == 'all' or not filter_type %}btn-brand{% else %}btn-outline-soft{% endif %} rounded-pill px-3">All</a>
+                <a href="?q={{ query|urlencode }}&filter=blog" class="btn {% if filter_type == 'blog' %}btn-brand{% else %}btn-outline-soft{% endif %} rounded-pill px-3">Blog</a>
+                <a href="?q={{ query|urlencode }}&filter=topic" class="btn {% if filter_type == 'topic' %}btn-brand{% else %}btn-outline-soft{% endif %} rounded-pill px-3">Topic</a>
+                <a href="?q={{ query|urlencode }}&filter=category" class="btn {% if filter_type == 'category' %}btn-brand{% else %}btn-outline-soft{% endif %} rounded-pill px-3">Category</a>
+                <a href="?q={{ query|urlencode }}&filter=author" class="btn {% if filter_type == 'author' %}btn-brand{% else %}btn-outline-soft{% endif %} rounded-pill px-3">Author</a>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="text-md-end">
+            {% if query %}
+              <div class="section-kicker">Results</div>
+              <div class="h4 fw-bold">{% if posts %}{{ posts|length }}{% elif results %}{{ results|length }}{% else %}0{% endif %} matching “{{ query }}”</div>
+            {% else %}
+              <div class="small text-muted-soft">Tip: Try keywords like "travel", "AI", or an author name.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      {% if posts %}
+        {% if posts.0 %}
+          <div class="mb-4">
+            {% if posts.0.featured_image %}
+              <article class="article-card article-card-bg lift h-100" data-bg="{{ posts.0.featured_image.url }}" style="min-height: 22rem;">
+            {% else %}
+              <article class="article-card article-card-bg lift h-100" data-bg="{% static 'images/post-default.svg' %}" style="min-height: 22rem;">
+            {% endif %}
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge rounded-pill badge-soft">Result</span>
+                    <span class="small text-muted-soft">{{ posts.0.created_at|timesince }} ago</span>
+                  </div>
+                  <h3 class="display-6 fw-bold mb-2 text-white"><a href="{% url 'blog_detail' posts.0.slug %}" class="text-white text-decoration-none">{{ posts.0.title|highlight:query }}</a></h3>
+                  <p class="text-white mb-4">{{ posts.0.short_description|highlight:query|truncatechars:220 }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="small text-white">
+                      <strong>By {{ posts.0.author }}</strong> · {{ posts.0.created_at|date:"M d, Y" }}
+                    </div>
+                    <a href="{% url 'blog_detail' posts.0.slug %}" class="btn btn-outline-light rounded-pill px-4">Read article</a>
+                  </div>
+                </div>
+              </article>
+          </div>
+        {% endif %}
+
+        {% if posts|length > 1 %}
+          <div class="soft-card rounded-5 p-4 p-lg-5">
+            <div class="row g-4">
+              {% for post in posts|slice:"1:" %}
+                <div class="col-12 col-md-6 col-lg-4">
+                  {% if post.featured_image %}
+                    <article class="article-card article-card-bg lift h-100" data-bg="{{ post.featured_image.url }}">
+                  {% else %}
+                    <article class="article-card article-card-bg lift h-100" data-bg="{% static 'images/post-default.svg' %}">
+                  {% endif %}
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <span class="badge rounded-pill badge-soft">Article</span>
+                          <span class="small text-muted-soft">{{ post.created_at|timesince }} ago</span>
+                        </div>
+                        <h4 class="h5 mb-2 text-white"><a href="{% url 'blog_detail' post.slug %}" class="text-white text-decoration-none">{{ post.title|highlight:query }}</a></h4>
+                        <p class="text-muted-soft small mb-3">{{ post.short_description|highlight:query|truncatechars:120 }}</p>
+                        <div class="small text-muted-soft">
+                          <strong>{{ post.author }}</strong>
+                        </div>
+                      </div>
+                    </article>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      {% elif results %}
+        {% if results.0 %}
+          <div class="mb-4">
+            {% if results.0.featured_image %}
+              <article class="article-card article-card-bg lift h-100" data-bg="{{ results.0.featured_image.url }}" style="min-height: 22rem;">
+            {% else %}
+              <article class="article-card article-card-bg lift h-100" data-bg="{% static 'images/post-default.svg' %}" style="min-height: 22rem;">
+            {% endif %}
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge rounded-pill badge-soft">Result</span>
+                    <span class="small text-muted-soft">{{ results.0.created_at|timesince }} ago</span>
+                  </div>
+                  <h3 class="display-6 fw-bold mb-2 text-white"><a href="{% url 'blog_detail' results.0.slug %}" class="text-white text-decoration-none">{{ results.0.title|highlight:query }}</a></h3>
+                  <p class="text-white mb-4">{{ results.0.short_description|highlight:query|truncatechars:220 }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="small text-white">
+                      <strong>By {{ results.0.author }}</strong> · {{ results.0.created_at|date:"M d, Y" }}
+                    </div>
+                    <a href="{% url 'blog_detail' results.0.slug %}" class="btn btn-outline-light rounded-pill px-4">Read article</a>
+                  </div>
+                </div>
+              </article>
+          </div>
+        {% endif %}
+
+        {% if results|length > 1 %}
+          <div class="soft-card rounded-5 p-4 p-lg-5">
+            <div class="row g-4">
+              {% for post in results|slice:"1:" %}
+                <div class="col-12 col-md-6 col-lg-4">
+                  {% if post.featured_image %}
+                    <article class="article-card article-card-bg lift h-100" data-bg="{{ post.featured_image.url }}">
+                  {% else %}
+                    <article class="article-card article-card-bg lift h-100" data-bg="{% static 'images/post-default.svg' %}">
+                  {% endif %}
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <span class="badge rounded-pill badge-soft">Article</span>
+                          <span class="small text-muted-soft">{{ post.created_at|timesince }} ago</span>
+                        </div>
+                        <h4 class="h5 mb-2 text-white"><a href="{% url 'blog_detail' post.slug %}" class="text-white text-decoration-none">{{ post.title|highlight:query }}</a></h4>
+                        <p class="text-muted-soft small mb-3">{{ post.short_description|highlight:query|truncatechars:120 }}</p>
+                        <div class="small text-muted-soft">
+                          <strong>{{ post.author }}</strong>
+                        </div>
+                      </div>
+                    </article>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      {% else %}
+        <div class="soft-card rounded-5 p-5 text-center">
+          <div class="mb-4">
+            <img src="{% static 'images/post-default.svg' %}" alt="No results" class="img-fluid" style="max-width: 200px; opacity: 0.6;">
+          </div>
+          <h3 class="h3 mb-2">No results</h3>
+          {% if query %}
+            {% if filter_type == 'all' %}
+              <p class="text-muted-soft mb-4">We couldn't find any posts matching "{{ query }}" across all content. Try different keywords or check spelling.</p>
+            {% elif filter_type == 'blog' %}
+              <p class="text-muted-soft mb-4">We couldn't find any blog posts containing "{{ query }}" in the title, description, or content.</p>
+            {% elif filter_type == 'topic' %}
+              <p class="text-muted-soft mb-4">We couldn't find any blog titles matching "{{ query }}". Try searching in other categories.</p>
+            {% elif filter_type == 'category' %}
+              <p class="text-muted-soft mb-4">We couldn't find any categories matching "{{ query }}". Try a different search term.</p>
+            {% elif filter_type == 'author' %}
+              <p class="text-muted-soft mb-4">We couldn't find any posts by authors matching "{{ query }}". Try a different author name or username.</p>
+            {% endif %}
+          {% else %}
+            <p class="text-muted-soft mb-4">Enter a keyword above to search posts on the site.</p>
+          {% endif %}
+          <div class="d-flex justify-content-center gap-2">
+            <a href="/" class="btn btn-outline-soft rounded-pill px-4">Back to home</a>
+            <a href="#" class="btn btn-brand rounded-pill px-4" onclick="document.querySelector('input[name=q]').focus(); return false;">Try a new search</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}
+

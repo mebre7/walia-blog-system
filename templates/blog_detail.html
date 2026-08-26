@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+{% load search_filters %}
+
+{% block title %}{{ blog.title }} | Walia-blog{% endblock %}
+
+{% block content %}
+<main>
+  <section class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+          <span class="section-kicker">Blog detail</span>
+          <h1 class="display-6 fw-bold mb-1">{{ blog.title }}</h1>
+          <p class="text-muted-soft mb-0">{{ blog.short_description }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'category_detail' blog.category.id %}" class="btn btn-outline-soft rounded-pill px-4">Back to category</a>
+          <a href="/" class="btn btn-brand rounded-pill px-4">Back home</a>
+        </div>
+      </div>
+
+      {# Featured image with side panels: reduced size image on the left, details on the right #}
+      {% if blog.featured_image %}
+        <div class="row g-4 feature-row mb-4">
+          <div class="col-lg-9 d-flex">
+            <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" class="img-fluid site-figure feature-figure w-100">
+          </div>
+          <div class="col-lg-3 feature-side d-flex flex-column gap-3">
+            <div class="soft-card rounded-5 p-4 mb-0">
+              <div class="section-kicker mb-2">Post details</div>
+              <h3 class="h5 mb-2">What you’re reading</h3>
+              <div class="small text-muted-soft mb-2">A quick summary of the article</div>
+              <div class="d-grid gap-2">
+                <div><span class="text-muted-soft d-block">Category</span><strong>{{ blog.category.name }}</strong></div>
+                <div><span class="text-muted-soft d-block">Author</span><strong>{{ blog.author }}</strong></div>
+                <div><span class="text-muted-soft d-block">Published</span><strong>{{ blog.created_at|date:"F d, Y" }}</strong></div>
+              </div>
+            </div>
+
+            <div class="soft-card rounded-5 p-4 mb-0">
+              <div class="section-kicker mb-2">Category</div>
+              <h3 class="h5 mb-2">{{ blog.category.name }}</h3>
+              <p class="text-muted-soft small mb-3">{{ blog.category.description }}</p>
+              <a href="{% url 'category_detail' blog.category.id %}" class="btn btn-outline-soft rounded-pill px-3">View all posts</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="row g-4">
+        <div class="col-12">
+          <article class="soft-card rounded-5 p-4 p-lg-5 mb-4">
+            <div class="mb-3 text-muted-soft small">Published {{ blog.created_at|date:"M d, Y" }} · By {{ blog.author }}</div>
+            <div class="blog-body-content text-muted-soft fs-5 lh-lg">
+              {{ blog.blog_body|linebreaks }}
+            </div>
+          </article>
+
+          <div class="soft-card rounded-5 p-4 p-lg-5 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+              <div>
+                <span class="section-kicker">Related posts</span>
+                <h3 class="h4 mb-1">More from {{ blog.category.name }}</h3>
+                <p class="text-muted-soft mb-0">Continue reading similar stories.</p>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              {% for item in related_posts %}
+                <div class="col-md-6">
+                  <a href="{% url 'blog_detail' item.slug %}" class="text-decoration-none d-block h-100">
+                    <div class="article-card lift h-100 p-3">
+                      <div class="small text-muted-soft mb-2">{{ item.created_at|date:"M d, Y" }}</div>
+                      <h4 class="h5 mb-2">{{ item.title|highlight:blog.title }}</h4>
+                      <p class="text-muted-soft small mb-0">{{ item.short_description|highlight:blog.title|truncatechars:120 }}</p>
+                    </div>
+                  </a>
+                </div>
+              {% empty %}
+                <div class="col-12">
+                  <p class="text-muted-soft mb-0">No related posts yet in this category.</p>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="soft-card rounded-5 p-4 p-lg-5">
+            <div class="section-kicker mb-2">Other categories</div>
+            <div class="d-flex flex-wrap gap-2">
+              {% for cat in other_categories %}
+                <a href="{% url 'category_detail' cat.id %}" class="btn btn-outline-soft rounded-pill px-3">{{ cat.name }}</a>
+              {% empty %}
+                <span class="text-muted-soft">No other categories available.</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

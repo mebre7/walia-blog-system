@@ -1,0 +1,306 @@
+{% load static %}
+<main>
+  <section class="hero-grid pt-5 pb-4" id="discover">
+    <div class="container py-4 py-lg-5">
+      <div class="soft-card rounded-5 p-4 p-lg-5 hero-panel reveal">
+        <div class="row g-4 align-items-stretch">
+          <div class="col-12">
+            <span class="section-kicker">Modern BlogPost System</span>
+            <h2 class="h1 fw-bold mt-3 mb-3">Walia-blog</h2>
+            <p class="lead text-muted-soft mb-4">
+              A community-driven blog platform for publishing technology stories, country guides,
+              field-specific insights, and everything in between.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <a href="#types" class="btn btn-brand btn-lg rounded-pill px-4">Choose a post type</a>
+              <a href="#posts" class="btn btn-outline-soft btn-lg rounded-pill px-4">Explore the feed</a>
+            </div>
+
+            <form class="row g-2 align-items-center" method="get" action="{% url 'search' %}">
+              <div class="col-md-8">
+                <div class="input-group input-group-lg">
+                  <span class="input-group-text bg-transparent text-muted-soft border-end-0">Search</span>
+                  <input type="search" class="form-control border-start-0" placeholder="Search stories, tags, authors, places..." name="q" value="{{ query }}" aria-label="Search posts">
+                </div>
+              </div>
+              <div class="col-md-4 d-grid">
+                <button class="btn btn-outline-soft btn-lg rounded-pill" type="submit">Find posts</button>
+              </div>
+            </form>
+
+            <div class="row g-3 mt-4">
+              <div class="col-sm-4">
+                <div class="mini-stat p-3 h-100">
+                  <div class="section-kicker mb-1">Fast Read</div>
+                  <div class="h3 mb-1">Clear layout</div>
+                  <div class="small text-muted-soft">Designed for quick browsing and focused reading.</div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="mini-stat p-3 h-100">
+                  <div class="section-kicker mb-1">Flexible</div>
+                  <div class="h3 mb-1">Topic ready</div>
+                  <div class="small text-muted-soft">Technology, countries, fields, and more choices.</div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="mini-stat p-3 h-100">
+                  <div class="section-kicker mb-1">Modern</div>
+                  <div class="h3 mb-1">Works great on any device</div>
+                  <div class="small text-muted-soft">A clean, comfortable reading experience on phones and desktops.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-divider my-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero-grid pt-5 pb-4">
+    <div class="soft-card rounded-5 p-4 p-lg-5 hero-panel reveal"
+      {% if trending_post and trending_post.featured_image %}
+         style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('{{ trending_post.featured_image.url }}'); background-size: cover; background-position: center;"
+      {% endif %}
+    >
+          <span aria-colcount="1">Trending now</span>
+            <div>
+              {% if trending_post %}
+                  <a href="{% url 'blog_detail' trending_post.slug %}">
+                    <h1 class="display-4 fw-bold mt-3 mb-3{% if trending_post.featured_image %} text-white{% endif %}">{{ trending_post.title }}</h1>
+                  </a>
+
+                <p class="{% if trending_post.featured_image %}text-white{% else %}text-muted-soft{% endif %} mb-4">{{ trending_post.short_description|truncatechars:180 }}</p>
+              {% if not trending_post.featured_image %}
+                <div class="asset-frame mb-4">
+                  <img src="{% static 'images/no_background.jpeg' %}" alt="{{ trending_post.title }}" class="img-fluid w-100 site-figure">
+                </div>
+              {% endif %}
+              <div>
+                <div class="small {% if trending_post.featured_image %}text-white{% else %}text-muted-soft{% endif %} mb-1">From the latest posts</div>
+                <div class="h4 mb-1{% if trending_post.featured_image %} text-white{% endif %}" data-selected-topic>{{ trending_post.category.name }}</div>
+                <div class="small {% if trending_post.featured_image %}text-white{% else %}text-muted-soft{% endif %}" data-selected-topic-copy>
+                  By {{ trending_post.author }} · {{ trending_post.created_at|timesince }} ago
+                </div>
+              </div>
+              {% else %}
+                <h1 class="display-4 fw-bold mt-3 mb-3">Trending posts will appear here</h1>
+                <p class="text-muted-soft mb-4">Once you publish a blog post, this area will automatically show one of your latest stories.</p>
+                <div class="asset-frame mb-4">
+                  <img src="{% static 'images/no_background.jpeg' %}" alt="Trending placeholder" class="img-fluid w-100 site-figure">
+                </div>
+                <div>
+                  <div class="small text-muted-soft mb-1">From the latest posts</div>
+                  <div class="h4 mb-1" data-selected-topic>All categories</div>
+                  <div class="small text-muted-soft" data-selected-topic-copy>
+                    Publish a post to populate this panel.
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+              <span class="badge rounded-pill badge-soft">Design</span>
+              <span class="badge rounded-pill badge-soft">Tech</span>
+              <span class="badge rounded-pill badge-soft">Countries</span>
+              <span class="badge rounded-pill badge-soft">Education</span>
+              <span class="badge rounded-pill badge-soft">Travel</span>
+            </div>
+    </div>
+  </section>
+
+  <section id="types" class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+          <span class="section-kicker">Choose the post type</span>
+          <h2 class="display-6 fw-bold mb-1">What are you writing today?</h2>
+          <p class="text-muted-soft mb-0">Pick a direction to guide your post.</p>
+        </div>
+        <div class="text-muted-soft small">Pick any category card to open its posts.</div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="soft-card rounded-5 p-3 p-lg-4">
+            <div class="chip-scroll d-flex flex-wrap gap-2 mb-4">
+              {% for cat in all_categories %}
+                  <a href="{% url 'category_detail' cat.id %}" class="btn btn-outline-soft rounded-pill px-4">{{ cat.name }}</a>
+              {% endfor %}
+          </div>
+
+            <div class="row g-4 align-items-stretch">
+              <div class="col-lg-8">
+                <div class="row g-3">
+                      {% for sel_cat in selected_categories %}
+                          <div class="col-md-6 col-xl-4">
+                              <a href="{% url 'category_detail' sel_cat.id %}" class="text-decoration-none d-block h-100">
+                                  <div class="topic-card h-100 lift">
+                                       {% if sel_cat.image %}<img src="{{ sel_cat.image.url }}" alt="{{ sel_cat.name }}" class="img-fluid topic-preview mb-3">{% endif %}
+                                      <div class="topic-dot mb-3">{{ sel_cat.short_code }}</div>
+                                      <h3 class="h5">{{ sel_cat.name }}</h3>
+                                      <p class="text-muted-soft mb-3">{{ sel_cat.description }}</p>
+                                      <div class="small text-muted-soft">{{ sel_cat.tagline }}</div>
+                                  </div>
+                              </a>
+                          </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                <div class="soft-card rounded-4 p-4 h-100">
+                  <div class="section-kicker mb-2">For readers</div>
+                  {% if trending_post %}
+                    <h3 class="h4 mb-3">{{ trending_post.title }}</h3>
+                    <p class="text-muted-soft mb-3">{{ trending_post.short_description|truncatechars:160 }}</p>
+                    <div class="preview-band ps-3 py-2">
+                      <div class="small text-muted-soft mb-1">Current category</div>
+                      <div class="fw-semibold">{{ trending_post.category.name }}</div>
+                    </div>
+                  {% else %}
+                    <h3 class="h4 mb-3">Browse the latest stories</h3>
+                    <p class="text-muted-soft mb-0">This section will show the newest published post once one is available.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container py-2"><div class="section-divider"></div></div>
+
+  <section class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-lg-4"><div class="story-card lift"><div class="story-icon mb-3">01</div><h3 class="h4">Technology stories</h3><p class="text-muted-soft mb-0">Write about software, AI, coding journeys, startups, and tools in a clean editorial format.</p></div></div>
+        <div class="col-lg-4"><div class="story-card lift"><div class="story-icon mb-3">02</div><h3 class="h4">Country-based content</h3><p class="text-muted-soft mb-0">Build pages for travel, geography, culture, country comparisons, and place-focused insight.</p></div></div>
+        <div class="col-lg-4"><div class="story-card lift"><div class="story-icon mb-3">03</div><h3 class="h4">Field-specific writing</h3><p class="text-muted-soft mb-0">Support education, careers, science, finance, health, and other field-driven categories.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="posts" class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+          <span class="section-kicker">Featured stories</span>
+          <h2 class="display-6 fw-bold mb-1">Curated content for you</h2>
+          <p class="text-muted-soft mb-0">Handpicked articles tailored to your interests.</p>
+        </div>
+        <a href="#subscribe" class="btn btn-outline-soft rounded-pill px-4">Join updates</a>
+      </div>
+
+      {% if featured_posts %} 
+      <div class="row g-4 mb-4">
+        {% for post in featured_posts %} 
+        <div class="col-md-6 col-lg-4">
+          {% if post.featured_image %}
+          <article class="article-card article-card-bg lift h-100" data-bg="{{ post.featured_image.url }}">
+          {% else %}
+          <article class="article-card article-card-bg lift h-100" data-bg="{% static 'images/no_background.jpeg' %}">
+          {% endif %}
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="badge rounded-pill badge-soft">Featured</span>
+                  <span class="small text-muted-soft">{{ post.created_at|timesince }} ago</span>
+                </div>
+                    <h3 class="h5 mb-2 text-white"><a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="text-white text-decoration-none">{{ post.title }}</a></h3>
+                <p class="text-muted-soft mb-3">{{ post.short_description|truncatechars:140 }}</p>
+                  <div class="small text-muted-soft mb-3">By {{ post.author }}</div>
+                  <a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="btn btn-outline-soft rounded-pill btn-sm px-3">Read article</a>
+            </div>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="soft-card rounded-5 p-4 p-lg-5 h-100">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <div class="section-kicker mb-2">Latest reads</div>
+            <h3 class="h4 mb-0">Newest posts, shown first</h3>
+          </div>
+          <button type="button" class="btn btn-outline-soft rounded-pill px-4" data-scroll-down>
+            Load more
+          </button>
+        </div>
+
+        <div class="latest-reads-scroll" data-latest-scroll style="max-height:78vh; overflow-y:auto; scroll-behavior:smooth;">
+          <div class="row g-4">
+            <!-- all_blogs shouldn't include featured posts -->
+            {% for post in all_blogs %}
+            <div class="col-12 col-xl-6 latest-read-item" data-latest-item>
+              {% if post.featured_image %}
+              <article class="article-card article-card-bg h-100 lift" data-bg="{{ post.featured_image.url }}">
+              {% else %}
+              <article class="article-card article-card-bg h-100 lift" data-bg="{% static 'images/no_background.jpeg' %}">
+              {% endif %}
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge rounded-pill badge-soft">Recent</span>
+                    <span class="small text-muted-soft">{{ post.created_at|timesince}} ago</span>
+                  </div>
+                  <h4 class="h5 mb-2 text-white"><a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="text-white text-decoration-none">{{ post.title }}</a></h4>
+                  <p class="text-muted-soft small mb-3">{{ post.short_description|truncatechars:140 }}</p>
+                  <div class="d-flex justify-content-between align-items-center small text-muted-soft">
+                    <span>{{ post.author }}</span>
+                    <span>{{ post.category.name }}</span>
+                  </div>
+                  <div class="mt-3">
+                    <a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="btn btn-outline-soft rounded-pill btn-sm px-3">Read more</a>
+                  </div>
+                </div>
+              </article>
+            </div>
+            {% empty %}
+            <div class="col-12"><p class="text-muted-soft mb-0">No recent posts yet.</p></div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-center mt-4">
+            <button type="button" class="btn btn-brand rounded-pill px-4" data-scroll-down>
+              Load more posts
+            </button>
+          </div>
+        </div>
+      </div>
+      {% else %}
+        <div class="soft-card rounded-5 p-5 text-center">
+          <h3 class="h4 mb-3">No posts yet</h3>
+          <p class="text-muted-soft mb-0">This layout is ready, so you can start publishing whenever you're ready.</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section id="subscribe" class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="soft-card rounded-5 p-4 p-lg-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-7">
+            <span class="section-kicker">Member exclusive</span>
+            <h2 class="display-6 fw-bold mt-2">Join our reading community.</h2>
+            <p class="text-muted-soft mb-0">Sign up or sign in to unlock full access to articles, curated collections, and personalized reading recommendations.</p>
+          </div>
+          <div class="col-lg-5">
+            <div class="d-grid gap-2">
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="btn btn-brand btn-lg rounded-pill">View profile</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-soft btn-lg rounded-pill">Logout</a>
+              {% else %}
+                <a href="{% url 'signup' %}" class="btn btn-brand btn-lg rounded-pill">Create an account</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-soft btn-lg rounded-pill">Already a member? Sign in</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

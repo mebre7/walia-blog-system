@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ category.name }} | Walia-blog
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="soft-card rounded-5 p-4 p-lg-5 hero-panel"
+        {% if category.image %}
+          style="background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('{{ category.image.url }}'); background-size: cover; background-position: center;"
+        {% endif %}
+      >
+        <div class="row align-items-center g-4">
+          <div class="col-lg-8">
+            {% if category.image %}
+              <span class="section-kicker" style="color: #7dd3fc;">{{ category.short_code }}</span>
+              <h1 class="display-4 fw-bold mt-3 mb-3 text-white">{{ category.name }}</h1>
+              <p class="lead text-white mb-0">{{ category.description|default:"Explore all published stories in this category." }}</p>
+            {% else %}
+              <span class="section-kicker">Category</span>
+              <h1 class="display-4 fw-bold mt-3 mb-3">{{ category.name }}</h1>
+              <p class="lead text-muted-soft mb-0">{{ category.description|default:"Explore all published stories in this category." }}</p>
+            {% endif %}
+
+            {% if category.tagline %}
+              <div class="mt-4">
+                <p class="h5 {% if category.image %}text-white{% else %}text-muted-soft{% endif %} fw-normal mb-0">💡 {{ category.tagline }}</p>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="col-lg-4">
+            <div class="text-lg-center">
+              <div class="mini-stat p-4 h-100">
+                <div class="section-kicker mb-2">Total Posts</div>
+                <div class="display-5 fw-bold mb-1">{{ post_count }}</div>
+                <div class="small text-muted-soft">Published in {{ category.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      {% if post_count %}
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+          <div>
+            <span class="section-kicker">{{ post_count }} articles</span>
+            <h2 class="display-6 fw-bold mb-1">Latest from {{ category.name }}</h2>
+            <p class="text-muted-soft mb-0">Browse all stories in this category.</p>
+          </div>
+        </div>
+
+        {% with featured_post=posts.0 %}
+          <div class="mb-4">
+            <article class="article-card article-card-bg lift h-100" data-bg="{% if featured_post.featured_image %}{{ featured_post.featured_image.url }}{% else %}{% static 'images/no_background.jpeg' %}{% endif %}" style="min-height: 28rem;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="badge rounded-pill badge-soft">Latest</span>
+                  <span class="small text-muted-soft">{{ featured_post.created_at|timesince }} ago</span>
+                </div>
+                <h3 class="display-5 fw-bold mb-2 text-white">{{ featured_post.title }}</h3>
+                <p class="text-white mb-4">{{ featured_post.short_description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="small text-white">
+                    <strong>By {{ featured_post.author }}</strong> · {{ featured_post.created_at|date:"M d, Y" }}
+                  </div>
+                  <a href="{% url 'blog_detail' featured_post.slug|default:featured_post.title|slugify %}" class="btn btn-brand rounded-pill px-4">Read article</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        {% endwith %}
+
+        {% if post_count > 1 %}
+          <div class="soft-card rounded-5 p-4 p-lg-5">
+            <div class="row g-4">
+              {% for post in posts|slice:"1:" %}
+                <div class="col-12 col-md-6 col-lg-4">
+                  <article class="article-card article-card-bg lift h-100" data-bg="{% if post.featured_image %}{{ post.featured_image.url }}{% else %}{% static 'images/no_background.jpeg' %}{% endif %}">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge rounded-pill badge-soft">Article</span>
+                        <span class="small text-muted-soft">{{ post.created_at|timesince }} ago</span>
+                      </div>
+                      <h4 class="h5 mb-2 text-white"><a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="text-white text-decoration-none">{{ post.title }}</a></h4>
+                      <p class="text-muted-soft small mb-3">{{ post.short_description|truncatechars:120 }}</p>
+                      <div class="small text-muted-soft">
+                        <strong>{{ post.author }}</strong>
+                      </div>
+                      <div class="mt-3">
+                        <a href="{% url 'blog_detail' post.slug|default:post.title|slugify %}" class="btn btn-outline-soft rounded-pill btn-sm px-3">Read more</a>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="soft-card rounded-5 p-5 text-center">
+          <h3 class="h3 mb-2">No posts yet</h3>
+          <p class="text-muted-soft mb-4">There are no published posts in this category. Check back soon!</p>
+          <a href="/" class="btn btn-outline-soft rounded-pill px-4">Back home</a>
+        </div>
+      {% endif %}
+    </div>
+    </div>
+
+  <!-- Related Categories Section -->
+  <div class="py-5 reveal">
+    <div class="container py-2 py-lg-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+          <span class="section-kicker">Explore more</span>
+          <h2 class="display-6 fw-bold mb-1">Other categories</h2>
+          <p class="text-muted-soft mb-0">Discover content in other topics.</p>
+        </div>
+      </div>
+
+      <!-- Related Categories Buttons -->
+      <div class="row g-3">
+            <div class="chip-scroll d-flex flex-wrap gap-2 mb-4">
+               {% for cat in other_categories %}
+                   <a href="{% url 'category_detail' cat.id %}" class="btn btn-outline-soft rounded-pill px-4">{{ cat.name }}</a>
+               {% endfor %}
+            </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+{% endblock %}
