@@ -105,8 +105,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'blogs.apps.BlogsConfig',
     'accounts',
-    'crispy_forms',
-    'crispy_bootstrap4'
+    # 'crispy_forms',
+    # 'crispy_bootstrap4'
 ]
 
 for app in ('crispy_forms', 'crispy_bootstrap4'):
