@@ -39,7 +39,7 @@ class Blog(models.Model):
     slug = models.SlugField(max_length=200, unique=True, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='blogs') # this is used to link the blog to the category and also to get all blogs under a category using category.blogs.all()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', null=True, blank=True)
+    featured_image = models.ImageField(upload_to='uploads/blogs/%Y/%m/%d/', null=True, blank=True)
     short_description = models.TextField(max_length=500, null=False)
     blog_body = models.TextField(null=False)
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=0)
